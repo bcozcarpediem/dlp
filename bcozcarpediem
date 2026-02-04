@@ -1,0 +1,39 @@
+InfoWatch + ALDPro гайд (основано на https://github.com/faradday/vipnet с методичкой на Infowatch)
+по большей сути более актуализированная и подробная версия методички выше + гайд по решению частых проблем
+
+В стенде мы имеем машины:
+1. AD-demo.lab (172.16.1.2  demolab.demo.lab) gateway: 172.16.1.4
+2. ALD.lab (172.16.1.3 dc.aldpro.lab dc) 
+3. Astra-cli (172.16.1.7) gateway: 172.16.1.1 dns: 172.16.1.3 домены aldpro.lab
+4. IWDD
+5. IWDM
+6. IWDM-DB
+7. IWTM
+8. Win-Cli
+
+I. AD-demo.lab
+Согласно гайду из методички (а лучше делать согласно заданиям если они у вас есть) создаём подразделение со всеми пользователями в Active Directory. С этим сложностей возникнуть не должно.
+Обязательно нужно выдать всем администраторам права доменного админисратора
+
+II. Astra-cli
+Вообще, по методичке мы должно дойти до неё только после установки серверной части ALDPro на машине ALD.lab, но с этим возникают сложности, поэтому для начала настроим её.
+через nmtui настраиваем сетевуху:
+Конфигурация IPv4 - вручную
+IP: 172.16.1.7/24
+Шлюз: 172.16.1.1
+Серверы DNS: 172.16.1.3
+Поиск доменов: aldpro.lab
+
+Затем ставим имя: hostnamectl set-hostname astra-cli.aldpro.lab
+Ставим приоритет: sudo nano /etc/apt/preferences.d/aldpro (должно быть:
+Package: *
+Pin: release n=generic
+Pin-Priority: 900
+)
+На всякий случай можно проверить результат: sudo astra-modeswitch get (должно вывести 2)
+
+Проводим интернет до машины (т.к. на момент написания гайда репозиториев в датасторе техникума не было)
+и вводим команду: 
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -q -y aldpro-client
+после установки пакета aldpro-client нужно установить astra-cli в домен командой:
+sudo /opt/rbta/aldpro/client/bin/aldpro-client-installer -d astra-cli -c aldpro.lab -u admin -i -p xxXX1234
