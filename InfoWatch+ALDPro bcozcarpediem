@@ -36,4 +36,34 @@ Pin-Priority: 900
 и вводим команду: 
 sudo DEBIAN_FRONTEND=noninteractive apt-get install -q -y aldpro-client
 после установки пакета aldpro-client нужно установить astra-cli в домен командой:
+
+
+III. ALD.lab
+Важное отличие от методички чтобы всё работало как часы: мы НЕ переустанавливаем ipa-server и НЕ удаляем конфиг апач. Если хоть что-то из этого сделает - ничего не заведётся.
+Перед установкой серверного aldpro нужно обязательно проверить пару конфигов:
+1. sudo nano /etc/resolv.conf - должен хранить в себе:
+search aldpro.lab
+nameserver 127.0.0.1
+2. sudo nano /etc/hosts - должен содержать следующие записи:
+172.16.1.3  dc.aldpro.lab dc
+172.16.1.4  iwtm.demo.lab iwtm
+172.16.1.2  demolab.demo.lab
+3. sudo nano /etc/network/interfaces - для eth0 должен содержать запись:
+auto eth0
+iface eth0 inet static
+  address 172.16.1.3/24
+  gateway 172.16.1.4
+ЗАТЕМ ОБЯЗАТЕЛЬНО:
+systemctl restart networking - перезапускает сетевые службы. через команду ip addr убедитесь что настройки адаптера изменились на поставленный вами айпишник.
+
+Только затем уже пишем команду:
+sudo aldpro-server-install -d aldpro.lab -n dc -p xxXX1234 --ip 172.16.1.3 --no-reboot
+Установка будет долгой, мучительной. Если в конце установки увидите порядка 15-20 ошибок питоновского скрипта - значит всё встало нормально (ошибок не пугаемся!!!)
+после установки меняем пароль для админа в керберосе:
+kadmin.local
+change_password admin
+xxXX1234
+
+IV. Astra-Cli
+после этапа установки aldpro-client и донастройки aldpro-server мы должны ввести машину в домен командой:
 sudo /opt/rbta/aldpro/client/bin/aldpro-client-installer -d astra-cli -c aldpro.lab -u admin -i -p xxXX1234
