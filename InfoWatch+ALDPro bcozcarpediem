@@ -27,9 +27,21 @@ IP: 172.16.1.7/24
 Серверы DNS: 172.16.1.3
 Поиск доменов: aldpro.lab
 
-Затем ставим имя: hostnamectl set-hostname astra-cli.aldpro.lab
-Ставим приоритет: sudo nano /etc/apt/preferences.d/aldpro должно быть:
+в /etc/hosts добавляем адрес:
+172.16.1.7  astra-cli.aldpro.lab
 
+Затем ставим имя: hostnamectl set-hostname astra-cli.aldpro.lab
+
+В /etc/apt/sources.list расскоменчиваем все репы и вставляем новые:
+deb https://dl.astralinux.ru/astra/frozen/1.7_x86-64/1.7.7/uu/2/repository-base/ 1.7_x86-64 main contrib non-free
+deb https://dl.astralinux.ru/astra/frozen/1.7_x86-64/1.7.7/uu/2/repository-extended/ 1.7_x86-64 main contrib non-free
+
+В несуществующем файле /etc/apt/sources.list.d/aldpro.list вставляем репу:
+deb https://dl.astralinux.ru/aldpro/frozen/01/3.0.0/ 1.7_x86-64 main base
+
+затем sudo apt update
+
+Ставим приоритет: sudo nano /etc/apt/preferences.d/aldpro должно быть:
 Package: *
 Pin: release n=generic
 Pin-Priority: 900
@@ -54,7 +66,7 @@ nameserver 127.0.0.1
 auto eth0
 iface eth0 inet static
   address 172.16.1.3/24
-  gateway 172.16.1.4
+  gateway 172.16.1.1
 ЗАТЕМ ОБЯЗАТЕЛЬНО:
 systemctl restart networking - перезапускает сетевые службы. через команду ip addr убедитесь что настройки адаптера изменились на поставленный вами айпишник.
 
@@ -69,3 +81,23 @@ xxXX1234
 IV. Astra-Cli
 после этапа установки aldpro-client и донастройки aldpro-server мы должны ввести машину в домен командой:
 sudo /opt/rbta/aldpro/client/bin/aldpro-client-installer -d astra-cli -c aldpro.lab -u admin -i -p xxXX1234
+
+V. IWTM
+Почему-то изначально Consul на этой машине отключен, а он критически важен при работе с вебкой Traffic Monitor'а в которой будет настраиваться
+LDAP-синхронизация. Но для начала нужно настроить сетку:
+/etc/hosts
+172.16.1.4  iwtm
+172.16.1.3  dc.aldpro.lab dc
+/etc/network/interfaces
+address 172.16.1.4/24
+gateway 172.16.1.1
+sudo systemctl restart networking
+проверяем через ip addr
+
+Для начала убедимся что консул действительно не работает. Если там уже написано что он активный, значит пропускаем шаг с его включением.
+Проверить консул: service iwtm-consul status
+Включить консул:
+nano /opt/iw/tm5/etc/consul/consul.json
+в ключе blind_addr ставим адрес IWTM (172.16.1.4)
+service iwtm-consul start
+
