@@ -28,18 +28,17 @@ IP: 172.16.1.7/24
 Поиск доменов: aldpro.lab
 
 Затем ставим имя: hostnamectl set-hostname astra-cli.aldpro.lab
-Ставим приоритет: sudo nano /etc/apt/preferences.d/aldpro (должно быть:
+Ставим приоритет: sudo nano /etc/apt/preferences.d/aldpro должно быть:
+
 Package: *
 Pin: release n=generic
 Pin-Priority: 900
-)
+
 На всякий случай можно проверить результат: sudo astra-modeswitch get (должно вывести 2)
 
 Проводим интернет до машины (т.к. на момент написания гайда репозиториев в датасторе техникума не было)
 и вводим команду: 
 sudo DEBIAN_FRONTEND=noninteractive apt-get install -q -y aldpro-client
-после установки пакета aldpro-client нужно установить astra-cli в домен командой:
-
 
 III. ALD.lab
 Важное отличие от методички чтобы всё работало как часы: мы НЕ переустанавливаем ipa-server и НЕ удаляем конфиг апач. Если хоть что-то из этого сделает - ничего не заведётся.
