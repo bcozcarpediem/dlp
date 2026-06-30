@@ -101,3 +101,4 @@ nano /opt/iw/tm5/etc/consul/consul.json
 в ключе blind_addr ставим адрес IWTM (172.16.1.4)
 service iwtm-consul start
 
+дальше я не успел сделать, но в целом можно двигаться по PDF методичкам вообще без напряга, всё будет норм работать
